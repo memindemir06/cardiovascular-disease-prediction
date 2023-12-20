@@ -17,7 +17,8 @@ def clean_data(df):
     :param df: DataFrame, the data to be cleaned
     :return: DataFrame, the cleaned data
     """
-    # Implement data cleaning steps if necessary
+    df.drop("id", axis=1, inplace=True)
+    df.drop_duplicates(inplace=True)
     return df
 
 def preprocess_data(df):
@@ -27,7 +28,24 @@ def preprocess_data(df):
     :param df: DataFrame, the data to be preprocessed
     :return: DataFrame, the preprocessed data
     """
-    # Implement data preprocessing steps like encoding categorical variables, imputation, etc.
+    # Calculate the Body Mass Index (BMI) for each row in the DataFrame
+    df["bmi"] = df["weight"] / (df["height"]/100)**2
+    # Drop the height and weight columns
+    df.drop(["height", "weight"], axis=1, inplace=True)
+    # Convert age from days to years
+    df["age"] = df["age"] / 365
+    # Convert age to integer
+    df["age"] = df["age"].astype(int)
+    
+    # Remove outliers
+    out_filter = ((df["ap_hi"]>250) | (df["ap_lo"]>200))
+    df = df[~out_filter]
+    out_filter2 = ((df["ap_hi"] < 0) | (df["ap_lo"] < 0))
+    df = df[~out_filter2]
+    out_filter3 = (df["ap_hi"] < df["ap_lo"])
+    df = df[~out_filter3]
+
+
     return df
 
 def scale_data(df):
